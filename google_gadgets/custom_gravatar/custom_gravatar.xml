@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Module>
+<ModulePrefs title="Gravatar" width="80" height="80" directory_title="Custom Gravatar" description="Show your own Avatar at Gravatar, choosing your gravatar HASH. Size is fixed at 80x80." author="Joner Cyrre Worm" author_location="Porto Alegre, RS, Brazil" author_email="custom_gravatar@worm.sh" scaling="false" scrolling="false" author_link="http://www.worm.sh" screenshot="http://www.worm.sh/custom_gravatar.jpeg" thumbnail="http://www.worm.sh/custom_gravatar_thumb.gif"/>
+<UserPref name="g_hash" display_name="Avatar HASH" required="true" />
+<Content type="html">
+<![CDATA[
+<img border="0" src="http://www.gravatar.com/avatar/__UP_g_hash__?s=80">
+]]>
+</Content>
+</Module>
