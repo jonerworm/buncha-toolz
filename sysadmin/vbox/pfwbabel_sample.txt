@@ -1,0 +1,3 @@
+# SSH Sample
+TCP 22 Secure Shell
+UDP 22 Secure Shell
