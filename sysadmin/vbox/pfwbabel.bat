@@ -45,7 +45,11 @@ rem
 set TMPFIL=%TEMP%\pfb_%RANDOM%.TMP
 sort >"%TMPFIL%"
 
-for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\innotek\virtualbox"  /v InstallDir`) do if "%%X"=="InstallDir" SET VBXPATH=%%Z
+for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\Sun\xVM VirtualBox"  /v InstallDir`) do if "%%X"=="InstallDir" SET VBXPATH=%%Z
+
+rem Try old version install
+
+if "%VBXPATH%"=="" for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\innotek\virtualbox"  /v InstallDir`) do if "%%X"=="InstallDir" SET VBXPATH=%%Z
 
 set VBXBIN=%VBXPATH%\vboxmanage.exe
 
