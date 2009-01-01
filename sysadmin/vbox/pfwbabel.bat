@@ -65,9 +65,9 @@ for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\Sun\xVM VirtualB
 
 rem Try old version install
 
-if "%VBXPATH%"=="" for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\innotek\virtualbox"  /v InstallDir`) do if "%%X"=="InstallDir" SET VBXPATH=%%Z
+if "%VBXPATH%"=="" for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\innotek\virtualbox"  /v InstallDir`) do if  "%%X"=="InstallDir" SET VBXPATH=%%Z
 
-set VBXBIN=%VBXPATH%\vboxmanage.exe
+set VBXBIN=%VBXPATH%vboxmanage.exe
 
 
 :CKSCR
@@ -108,63 +108,63 @@ if "%TARGET%"=="" set TARGET=%NOTARGET%
 
 
 echo @echo off >"%TMPSCR%"
-echo rem =================================================================================== >>"%TMPSCR%"
-echo rem Automatically created by %0 - pfwbabel: multi-firewall port forwarding configurator >>"%TMPSCR%"
-echo rem Another product from Buncha-toolz! >>"%TMPSCR%"
-echo rem Copyright 2008, Joner Cyrre Worm. >>"%TMPSCR%"
-echo rem http://www.worm.sh >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
-echo rem ============ WINDOWS FIREWALL THROUGH NETSH >>"%TMPSCR%"
+echo rem ===================================================================================>>"%TMPSCR%"
+echo rem Automatically created by %0 - pfwbabel: multi-firewall port forwarding configurator>>"%TMPSCR%"
+echo rem Another product from Buncha-toolz!>>"%TMPSCR%"
+echo rem Copyright 2008, Joner Cyrre Worm.>>"%TMPSCR%"
+echo rem http://www.worm.sh>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo rem ============ WINDOWS FIREWALL THROUGH NETSH>>"%TMPSCR%"
 echo Generating Windows firewall configuration... >&2
-echo echo Configuring Windows firewall through NETSH... >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
+echo echo Configuring Windows firewall through NETSH...>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
 for /F "usebackq tokens=1,2*" %%X in (`type "%TMPFIL%"`) do call :WINXP %MODE% %%X %%Y %%Z
 
-echo echo. >>"%TMPSCR%"
+echo echo.>>"%TMPSCR%"
 echo Done. >&2
-echo echo Done. >>"%TMPSCR%"
+echo echo Done.>>"%TMPSCR%"
 
 if not exist "%VBXBIN%" goto NOVBX
 
-echo rem ============ VIRTUALBOX FIREWALL THROUGH VBOXMANAGE.EXE >>"%TMPSCR%"
+echo rem ============ VIRTUALBOX FIREWALL THROUGH VBOXMANAGE.EXE>>"%TMPSCR%"
 echo Generating VirtualBox firewall configuration... >&2
-echo echo Configuring VirtualBox firewall through VBOXMANAGE... >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
+echo echo Configuring VirtualBox firewall through VBOXMANAGE...>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
 
-if not "%TARGET%"=="%NOTARGET%" echo rem DEFAULT VIRTUAL MACHINE NAME: %TARGET% >>"%TMPSCR%"
-echo rem %%1 = VIRTUAL MACHINE NAME >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
-echo set VBXPATH=%VBXPATH% >>"%TMPSCR%"
-echo set VBXBIN=%%VBXPATH%%vboxmanage.exe >>"%TMPSCR%"
-echo if not exist "%%VBXBIN%%" goto NOVBX >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
+if not "%TARGET%"=="%NOTARGET%" echo rem DEFAULT VIRTUAL MACHINE NAME: %TARGET%>>"%TMPSCR%"
+echo rem %%1 = VIRTUAL MACHINE NAME>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo set VBXPATH=%VBXPATH%>>"%TMPSCR%"
+echo set VBXBIN=%%VBXPATH%%vboxmanage.exe>>"%TMPSCR%"
+echo if not exist "%%VBXBIN%%" goto NOVBX>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
 
-if "%TARGET%"=="%NOTARGET%" echo set TARGET=%%1 >>"%TMPSCR%"
-if not "%TARGET%"=="%NOTARGET%" echo set TARGET=%TARGET% >>"%TMPSCR%"
+if "%TARGET%"=="%NOTARGET%" echo set TARGET=%%1>>"%TMPSCR%"
+if not "%TARGET%"=="%NOTARGET%" echo set TARGET=%TARGET%>>"%TMPSCR%"
 
-echo if not "%%1"=="" set TARGET=%%1 >>"%TMPSCR%"
+echo if not "%%1"=="" set TARGET=%%1>>"%TMPSCR%"
 
-echo if "%%TARGET%%"=="" goto NOTARGET >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
+echo if "%%TARGET%%"=="" goto NOTARGET>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
 
 for /F "usebackq tokens=1,2*" %%X in (`type "%TMPFIL%"`) do call :VBX %MODE% %%%%TARGET%%%% %%X %%Y %%Z
 
-echo. >>"%TMPSCR%"
-echo echo. >>"%TMPSCR%"
-echo echo Done. >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
-echo goto END >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
-echo :NOTARGET >>"%TMPSCR%"
-echo echo Virtual Machine name missing, pass it as a command line parameter. ^>^&2 >>"%TMPSCR%"
-echo goto END >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
-echo :NOVBX >>"%TMPSCR%"
-echo echo VIRTUAL BOX NOT FOUND (%%VBXBIN%%) ^>^&2 >>"%TMPSCR%"
-echo goto END >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
-echo :END >>"%TMPSCR%"
-echo. >>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo echo.>>"%TMPSCR%"
+echo echo Done.>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo goto END>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo :NOTARGET>>"%TMPSCR%"
+echo echo Virtual Machine name missing, pass it as a command line parameter. ^>^&^2>>"%TMPSCR%"
+echo goto END>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo :NOVBX>>"%TMPSCR%"
+echo echo VIRTUAL BOX NOT FOUND (%%VBXBIN%%) ^>^&^2>>"%TMPSCR%"
+echo goto END>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
+echo :END>>"%TMPSCR%"
+echo.>>"%TMPSCR%"
 
 echo Done. >&2
 
@@ -198,9 +198,9 @@ goto VBXPROCESS
 
 :VBXPROCESS
 
-echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/Protocol" %PROTO% >>"%TMPSCR%"
-echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/GuestPort" %PORT% >>"%TMPSCR%"
-echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/HostPort" %PORT% >>"%TMPSCR%"
+echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/Protocol" %PROTO%>>"%TMPSCR%"
+echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/GuestPort" %PORT%>>"%TMPSCR%"
+echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/HostPort" %PORT%>>"%TMPSCR%"
 
 goto VBXEND
 
@@ -234,14 +234,14 @@ if not "%7"=="" set REST=%REST% %7
 if not "%8"=="" set REST=%REST% %8
 if not "%9"=="" set REST=%REST% %9
 
-echo netsh.exe FIREWALL ADD PORTOPENING %PROTO% %PORT% "%REST% (%PORT%/%PROTO%)" ENABLE >>"%TMPSCR%"
+echo netsh.exe FIREWALL ADD PORTOPENING %PROTO% %PORT% "%REST% (%PORT%/%PROTO%)" ENABLE>>"%TMPSCR%"
 
 goto WINXPEND
 
 
 :WINXPDEL
 
-echo FIREWALL DELETE PORTOPENING %2 %3 >>"%TMPSCR%"
+echo netsh.exe FIREWALL DELETE PORTOPENING %2 %3>>"%TMPSCR%"
 
 goto WINXPEND
 
@@ -253,7 +253,7 @@ goto END
 
 :NOVBX
 echo No VirtualBox installation found. >&2
-echo echo No VirtualBox installation found. >>"%TMPSCR%"
+echo echo No VirtualBox installation found.>>"%TMPSCR%"
 
 goto END
 
