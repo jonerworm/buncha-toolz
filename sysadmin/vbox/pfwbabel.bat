@@ -7,8 +7,7 @@ rem Copyright 2008, Joner Cyrre Worm.
 echo Copyright 2008, Joner Cyrre Worm. >&2
 rem http://www.worm.sh
 rem
-rem $Id$
-rem
+rem ====================================================================
 rem This program is free software: you can redistribute it and/or modify
 rem it under the terms of the GNU General Public License as published by
 rem the Free Software Foundation, either version 3 of the License, or
@@ -23,9 +22,14 @@ rem You should have received a copy of the GNU General Public License
 rem along with this program.  If not, see http://www.gnu.org/licenses/.
 rem ====================================================================
 rem
-rem Write to STDOUT commands to configure Windows and Virtualbox firewall
+rem Add or delete port opening rules for Windows and Virtualbox firewall
+rem reading simple port declarations from STDIN.
 rem
+rem Optionaly can generate CMD script on STDOUT for later use.
+rem
+rem ==========================================================
 rem Read from STDIN port forwarding parameters in this format:
+rem ==========================================================
 rem
 rem PROTOCOL PORT DESCRIPTION
 rem
@@ -35,15 +39,27 @@ rem PORT = port number
 rem
 rem DESCRIPTION = text with up to 6 words
 rem
+rem ==========
+rem PARAMETERS
+rem ==========
+rem
+rem To generate script instead of executing: /SCRIPT
+rem Attention: OPTIONAL, must be first parameter
+rem
 rem To generate deletion rules, use the /DELETE parameter/DELETE
+rem Attention: OPTIONAL, must be first parameter if no /SCRIPT used,
+rem second, otherwise.
 rem
 rem To inform an extra info (such as virtual machine name),
-rem pass it as a paramter (after /DELETE if this is the case).
+rem pass it as a parameter (after /SCRIPT and/or /DELETE if this is the case).
 rem
-rem Lines beginning with "#" or ";" are comments
+rem Lines beginning with "#" or ";" followed by a blank space are comments
 rem
+rem ==========================================================================
+
 set TMPFIL=%TEMP%\pfb_%RANDOM%.TMP
 sort >"%TMPFIL%"
+set TMPSCR=%TEMP%\pfb_script_%RANDOM%.TMP
 
 for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\software\Sun\xVM VirtualBox"  /v InstallDir`) do if "%%X"=="InstallDir" SET VBXPATH=%%Z
 
@@ -53,6 +69,13 @@ if "%VBXPATH%"=="" for /F "usebackq tokens=1,2*" %%X in (`reg query "hklm\softwa
 
 set VBXBIN=%VBXPATH%\vboxmanage.exe
 
+
+:CKSCR
+set SCRIPT=NO
+if "%1"=="/SCRIPT" goto SCR
+if "%1"=="/S" goto SCR
+
+:CKDEL
 if "%1"=="/DELETE" goto DEL
 if "%1"=="/DEL" goto DEL
 if "%1"=="/D" goto DEL
@@ -62,12 +85,20 @@ set MODE=ADD
 
 goto PROCESS
 
+:SCR
+set SCRIPT=YES
+shift
+
+goto :CKDEL
+
+
 
 :DEL
 set MODE=DEL
 set TARGET=%2
 
 goto PROCESS
+
 
 :PROCESS
 
@@ -76,67 +107,70 @@ set NOTARGET=_#_NO_TARGET_#_
 if "%TARGET%"=="" set TARGET=%NOTARGET%
 
 
-echo @echo off
-echo rem ===================================================================================
-echo rem Automatically created by %0 - pfwbabel: multi-firewall port forwarding configurator
-echo rem Another product from Buncha-toolz!
-echo rem Copyright 2008, Joner Cyrre Worm.
-echo rem http://www.worm.sh
-echo.
-echo rem ============ WINDOWS FIREWALL THROUGH NETSH
+echo @echo off >"%TMPSCR%"
+echo rem =================================================================================== >>"%TMPSCR%"
+echo rem Automatically created by %0 - pfwbabel: multi-firewall port forwarding configurator >>"%TMPSCR%"
+echo rem Another product from Buncha-toolz! >>"%TMPSCR%"
+echo rem Copyright 2008, Joner Cyrre Worm. >>"%TMPSCR%"
+echo rem http://www.worm.sh >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
+echo rem ============ WINDOWS FIREWALL THROUGH NETSH >>"%TMPSCR%"
 echo Generating Windows firewall configuration... >&2
-echo echo Configuring Windows firewall through NETSH...
-echo.
+echo echo Configuring Windows firewall through NETSH... >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
 for /F "usebackq tokens=1,2*" %%X in (`type "%TMPFIL%"`) do call :WINXP %MODE% %%X %%Y %%Z
 
-echo echo.
+echo echo. >>"%TMPSCR%"
 echo Done. >&2
-echo echo Done.
+echo echo Done. >>"%TMPSCR%"
 
 if not exist "%VBXBIN%" goto NOVBX
 
-echo rem ============ VIRTUALBOX FIREWALL THROUGH VBOXMANAGE.EXE
+echo rem ============ VIRTUALBOX FIREWALL THROUGH VBOXMANAGE.EXE >>"%TMPSCR%"
 echo Generating VirtualBox firewall configuration... >&2
-echo echo Configuring VirtualBox firewall through VBOXMANAGE...
-echo.
+echo echo Configuring VirtualBox firewall through VBOXMANAGE... >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
 
-if not "%TARGET%"=="%NOTARGET%" echo rem DEFAULT VIRTUAL MACHINE NAME: %TARGET%
-echo rem %%1 = VIRTUAL MACHINE NAME
-echo.
-echo set VBXPATH=%VBXPATH%
-echo set VBXBIN=%%VBXPATH%%vboxmanage.exe
-echo if not exist "%%VBXBIN%%" goto NOVBX
-echo.
+if not "%TARGET%"=="%NOTARGET%" echo rem DEFAULT VIRTUAL MACHINE NAME: %TARGET% >>"%TMPSCR%"
+echo rem %%1 = VIRTUAL MACHINE NAME >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
+echo set VBXPATH=%VBXPATH% >>"%TMPSCR%"
+echo set VBXBIN=%%VBXPATH%%vboxmanage.exe >>"%TMPSCR%"
+echo if not exist "%%VBXBIN%%" goto NOVBX >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
 
-if "%TARGET%"=="%NOTARGET%" echo set TARGET=%%1
-if not "%TARGET%"=="%NOTARGET%" echo set TARGET=%TARGET%
+if "%TARGET%"=="%NOTARGET%" echo set TARGET=%%1 >>"%TMPSCR%"
+if not "%TARGET%"=="%NOTARGET%" echo set TARGET=%TARGET% >>"%TMPSCR%"
 
-echo if not "%%1"=="" set TARGET=%%1
+echo if not "%%1"=="" set TARGET=%%1 >>"%TMPSCR%"
 
-echo if "%%TARGET%%"=="" goto NOTARGET
-echo.
+echo if "%%TARGET%%"=="" goto NOTARGET >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
 
 for /F "usebackq tokens=1,2*" %%X in (`type "%TMPFIL%"`) do call :VBX %MODE% %%%%TARGET%%%% %%X %%Y %%Z
 
-echo.
-echo echo.
-echo echo Done.
-echo.
-echo goto END
-echo.
-echo :NOTARGET
-echo echo Virtual Machine name missing, pass it as a command line parameter. ^>^&2
-echo goto END
-echo.
-echo :NOVBX
-echo echo VIRTUAL BOX NOT FOUND (%%VBXBIN%%) ^>^&2
-echo goto END
-echo.
-echo :END
-echo.
+echo. >>"%TMPSCR%"
+echo echo. >>"%TMPSCR%"
+echo echo Done. >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
+echo goto END >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
+echo :NOTARGET >>"%TMPSCR%"
+echo echo Virtual Machine name missing, pass it as a command line parameter. ^>^&2 >>"%TMPSCR%"
+echo goto END >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
+echo :NOVBX >>"%TMPSCR%"
+echo echo VIRTUAL BOX NOT FOUND (%%VBXBIN%%) ^>^&2 >>"%TMPSCR%"
+echo goto END >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
+echo :END >>"%TMPSCR%"
+echo. >>"%TMPSCR%"
 
 echo Done. >&2
 
+if "%SCRIPT%"=="YES" type "%TMPSCR%"
+if not "%TARGET%"=="%NOTARGET%" set TARGET=
+if not "%SCRIPT%"=="YES" call "%TMPSCR%" %TARGET%
 
 goto END
 
@@ -164,9 +198,9 @@ goto VBXPROCESS
 
 :VBXPROCESS
 
-echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/Protocol" %PROTO%
-echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/GuestPort" %PORT%
-echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/HostPort" %PORT%
+echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/Protocol" %PROTO% >>"%TMPSCR%"
+echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/GuestPort" %PORT% >>"%TMPSCR%"
+echo "%%VBXBIN%%" -nologo setextradata "%GUEST%" "VBoxInternal/Devices/pcnet/0/LUN#0/Config/%SERVICE%/HostPort" %PORT% >>"%TMPSCR%"
 
 goto VBXEND
 
@@ -200,14 +234,14 @@ if not "%7"=="" set REST=%REST% %7
 if not "%8"=="" set REST=%REST% %8
 if not "%9"=="" set REST=%REST% %9
 
-echo netsh.exe FIREWALL ADD PORTOPENING %PROTO% %PORT% "%REST% (%PORT%/%PROTO%)" ENABLE
+echo netsh.exe FIREWALL ADD PORTOPENING %PROTO% %PORT% "%REST% (%PORT%/%PROTO%)" ENABLE >>"%TMPSCR%"
 
 goto WINXPEND
 
 
 :WINXPDEL
 
-echo FIREWALL DELETE PORTOPENING %2 %3
+echo FIREWALL DELETE PORTOPENING %2 %3 >>"%TMPSCR%"
 
 goto WINXPEND
 
@@ -219,7 +253,7 @@ goto END
 
 :NOVBX
 echo No VirtualBox installation found. >&2
-echo echo No VirtualBox installation found.
+echo echo No VirtualBox installation found. >>"%TMPSCR%"
 
 goto END
 
